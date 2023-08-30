@@ -1,44 +1,49 @@
+const UnauthorizedError = require('../errors/UnauthorizedError');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const validator = require('validator');
 
 const userSchema = new mongoose.Schema({
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  password: {
-    type: String,
-    required: true,
-    select: false,
-  },
   name: {
     type: String,
     required: true,
     minlength: 2,
     maxlength: 30,
   },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    validate: {
+      validator: (e) => (validator.isEmail(e)),
+      message: 'e-mail указан неверно',
+    },
+  },
+  password: {
+    type: String,
+    required: true,
+    select: false,
+  },
   createdAt: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 });
 
-// Хеширование пароля перед сохранением пользователя
-userSchema.pre('save', async function(next) {
-  try {
-    if (!this.isModified('password')) {
-      return next();
-    }
+userSchema.statics.findUserByCredentials = function (email, password) {
+  return this.findOne({ email }).select('+password')
+    .then((user) => {
+      if (!user) {
+        return Promise.reject(new UnauthorizedError('Неправильная почта или пароль'));
+      }
+      return bcrypt.compare(password, user.password)
+        .then((matched) => {
+          if (!matched) {
+            return Promise.reject(new UnauthorizedError('Неправильная почта или пароль'));
+          }
+          return user;
+        });
+    });
+};
 
-    const hashedPassword = await bcrypt.hash(this.password, 10);
-    this.password = hashedPassword;
-    return next();
-  } catch (err) {
-    return next(err);
-  }
-});
-
-const User = mongoose.model('User', userSchema);
-
-module.exports = User;
+module.exports = mongoose.model('user', userSchema);
