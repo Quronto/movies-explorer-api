@@ -27,7 +27,7 @@ const movieSchema = new mongoose.Schema({
     required: true,
     validate: {
       validator: (url) => (validator.isURL(url)),
-      message: 'URL указан непраильно',
+      message: 'Невалидный URL',
     },
   },
   trailerLink: {
@@ -35,7 +35,7 @@ const movieSchema = new mongoose.Schema({
     required: true,
     validate: {
       validator: (url) => (validator.isURL(url)),
-      message: 'URL указан непраильно',
+      message: 'Невалидный URL',
     },
   },
   thumbnail: {
@@ -43,7 +43,7 @@ const movieSchema = new mongoose.Schema({
     required: true,
     validate: {
       validator: (url) => (validator.isURL(url)),
-      message: 'URL указан непраильно',
+      message: 'Невалидный URL',
     },
   },
   owner: {

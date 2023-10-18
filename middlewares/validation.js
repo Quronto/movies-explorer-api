@@ -1,16 +1,16 @@
-const BadRequestError = require('../errors/BadRequestError');
 const { celebrate, Joi } = require('celebrate');
 const validator = require('validator');
+const BedRequestError = require('../errors/BedRequestError');
 
 const validatorUrl = (url) => {
   if (!validator.isURL(url)) {
-    throw new BadRequestError('Невалидный URL');
+    throw new BedRequestError('Невалидный URL');
   } else {
     return url;
   }
 };
 
-const validationSignup = celebrate({
+const validationCreateUser = celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
     email: Joi.string().required().email(),
@@ -22,6 +22,12 @@ const validationLogin = celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
     password: Joi.string().min(8).required(),
+  }),
+});
+
+const validationMovieId = celebrate({
+  params: Joi.object().keys({
+    movieId: Joi.string().required(),
   }),
 });
 
@@ -41,12 +47,6 @@ const validationCreateMovie = celebrate({
   }),
 });
 
-const validationMovieId = celebrate({
-  params: Joi.object().keys({
-    movieId: Joi.string().required().hex().length(24),
-  }),
-});
-
 const validationUpdateUser = celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
@@ -55,7 +55,7 @@ const validationUpdateUser = celebrate({
 });
 
 module.exports = {
-  validationSignup,
+  validationCreateUser,
   validationLogin,
   validationMovieId,
   validationCreateMovie,

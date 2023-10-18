@@ -1,16 +1,15 @@
-const NotFoundError = require('../errors/NotFoundError');
-const BadRequestError = require('../errors/BadRequestError');
-const ConflictError = require('../errors/ConflictError');
-const User = require('../models/user');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-
+const User = require('../models/user');
+const NotFoundError = require('../errors/NotFoundError');
+const BedRequestError = require('../errors/BedRequestError');
+const ConflictError = require('../errors/ConflictError');
 
 const { JWT_SECRET, NODE_ENV } = process.env;
 
 const getUser = (req, res, next) => {
   User.findById(req.user._id)
-    .orFail(new NotFoundError('Пользователь по указанному ID не найден'))
+    .orFail(new NotFoundError('Пользователь по указанному _id не найден'))
     .then((user) => res.status(200).send({ user }))
     .catch(next);
 };
@@ -26,13 +25,13 @@ const updateUser = (req, res, next) => {
       runValidators: true,
     },
   )
-    .orFail(new NotFoundError('Пользователь по указанному ID не найден'))
+    .orFail(new NotFoundError('Пользователь по указанному _id не найден'))
     .then((user) => res.status(200).send({ user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequestError('Переданы неверные данные при редактировании пользователя'));
+        next(new BedRequestError('Переданы некорректные данные при редактировании пользователя'));
       } else if (err.code === 11000) {
-        next(new ConflictError('Такой e-mail уже существует'));
+        next(new ConflictError('Такой email уже существует на сервере.'));
       } else {
         next(err);
       }
@@ -58,9 +57,9 @@ const createUser = (req, res, next) => {
         })
         .catch((err) => {
           if (err.name === 'ValidationError') {
-            next(new BadRequestError('Переданы неверные данные при создании пользователя'));
+            next(new BedRequestError('Переданы некорректные данные при создании пользователя'));
           } else if (err.code === 11000) {
-            next(new ConflictError('Такой e-mail уже существует'));
+            next(new ConflictError('Такой email уже существует на сервере.'));
           } else {
             next(err);
           }
@@ -73,7 +72,7 @@ const login = (req, res, next) => {
 
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, `${NODE_ENV === 'production' ? JWT_SECRET : 'JWT_SECRET'}`, { expiresIn: '7d' });
+      const token = jwt.sign({ _id: user._id }, `${NODE_ENV === 'production' ? JWT_SECRET : 'super-secret'}`, { expiresIn: '7d' });
       res.send({ token });
     })
     .catch(next);

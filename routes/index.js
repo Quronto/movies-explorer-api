@@ -1,29 +1,27 @@
-const NotFoundError = require('../errors/NotFoundError');
 const router = require('express').Router();
+const NotFoundError = require('../errors/NotFoundError');
 const auth = require('../middlewares/auth');
 
 const {
-  login,
   createUser,
+  login,
 } = require('../controllers/users');
 
 const {
+  validationCreateUser,
   validationLogin,
-  validationSignup,
 } = require('../middlewares/validation');
 
 router.use('/signin', validationLogin, login);
-
-router.use('/signup', validationSignup, createUser);
+router.use('/signup', validationCreateUser, createUser);
 
 router.use(auth);
 
+router.use('/movies', require('./movies'));
 router.use('/users', require('./users'));
 
-router.use('/movies', require('./movies'));
-
 router.use((req, res, next) => {
-  next(new NotFoundError('Сервер с данным адресом не найден'));
+  next(new NotFoundError('Сервер с указанным адресом не найден'));
 });
 
 module.exports = router;
