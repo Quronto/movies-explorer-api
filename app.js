@@ -18,7 +18,10 @@ const app = express();
 
 app.use(helmet());
 
-app.use(cors);
+app.use(cors({
+  origin: 'https://movies.quronto.nomoredomainsrocks.ru',
+  credentials: true,
+}));
 
 app.use(express.json());
 
